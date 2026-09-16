@@ -1,17 +1,17 @@
 import express from "express"
 import { configDotenv } from "dotenv"
 
+import { mainRouter } from './routes/mainRoutes.js'
+import { authorRouter } from './routes/authorRoutes.js'
+
 configDotenv()
 const app = express()
 
-// for using client
-// import { prisma } from 'lib/prisma.js'
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
-app.get('/api', (req, res) => {
-    res.json({
-        bruh: "momento"
-    })
-})
+app.use('/main', mainRouter)
+app.use('/author', authorRouter)
 
 const PORT = process.env.PORT || 3000
 
