@@ -9,6 +9,7 @@ import { mainRouter } from './routes/mainRoutes.js'
 import { authorRouter } from './routes/authorRoutes.js'
 
 import './passport/local.js'
+import './passport/jwt.js'
 
 
 const app = express()

@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js'
 import { passValid, genPass } from '../lib/utils.js'
+import jwt from 'jsonwebtoken'
 
 export function getMainPage (req, res) {
     res.json({
@@ -7,10 +8,10 @@ export function getMainPage (req, res) {
     })
 }
 
-export function getProtected (req, res) {
-    // after token verification
+export function getProfile (req, res) {
     res.json({
-        message: 'got through the protected route'
+        message: 'Got the user through JWT', 
+        user: req.user
     })
 }
 
@@ -44,10 +45,13 @@ export async function register (req, res) {
 }
 
 export function login (req, res) {
+    // issue a jwt
+    const user = req.user
+    const payload = { id: user.id, email: user.email, username: user.username }
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
 
     return res.status(200).json({
-        message: "user is authenticated", 
-        user: req.user
+        token
     })
-    // validate & issue a token here 
 }
