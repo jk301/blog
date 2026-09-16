@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma.js'
-import { passvalid, genPass } from '../lib/utils.js'
+import { passValid, genPass } from '../lib/utils.js'
 
 export function getMainPage (req, res) {
     res.json({
@@ -8,6 +8,7 @@ export function getMainPage (req, res) {
 }
 
 export function getProtected (req, res) {
+    // after token verification
     res.json({
         message: 'got through the protected route'
     })
@@ -43,8 +44,10 @@ export async function register (req, res) {
 }
 
 export function login (req, res) {
-    const email = req.body.email
-    const pass = req.body.password
 
+    return res.status(200).json({
+        message: "user is authenticated", 
+        user: req.user
+    })
     // validate & issue a token here 
 }
