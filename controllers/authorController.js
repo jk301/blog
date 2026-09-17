@@ -30,6 +30,21 @@ export async function authorLogin (req, res) {
     }
 }
 
+export async function getPosts (req, res) {
+    const userId = req.user.id
+
+    if (!req.user.isAuthor) {
+        return res.status(403).json({ error: "Only authors can create/change posts." })
+    }
+    
+    try {
+        const posts = await prisma.post.findMany({ where: { userId } })
+        return res.status(200).json({ Posts: posts })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
 
 export async function postUnpub (req, res) {
     const userId = req.user.id
