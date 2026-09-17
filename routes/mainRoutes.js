@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import {
-    getProfile, 
     register, 
     login, 
     getAllPosts, 
-    postComment
+    postComment, 
+    editComment, 
+    deleteOwnComment
 } from '../controllers/mainController.js'
 import passport from 'passport'
 
@@ -17,3 +18,5 @@ mainRouter.post('/login', passport.authenticate('local', { session: false }), lo
 
 // Protect jwt
 mainRouter.post('/posts/:postId/comments', passport.authenticate('jwt', { session: false }), postComment)
+mainRouter.put('/posts/:postId/comments/:commentId/edit', passport.authenticate('jwt', { session: false }), editComment)
+mainRouter.delete('/posts/:postId/comments/:commentId/delete', passport.authenticate('jwt', { session: false }), deleteOwnComment)

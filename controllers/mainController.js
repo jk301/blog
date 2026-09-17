@@ -72,3 +72,60 @@ export async function postComment (req, res) {
         return res.status(500).json({ error: "Something went wrong." })
     }
 }
+
+export async function editComment (req, res) {
+    const { postId, commentId } = req.params
+    const userId = req.user.id
+    const msgText = req.body.text
+
+    if (!postId || !msgText || !userId || !commentId) {
+        return res.status(400).json({ error: "content or identifiers is missing." })
+    }
+    
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found." })
+
+        const comment = await prisma.comment.findUnique({ where: { id: commentId } })
+        if (!comment) return res.status(404).json({ error: "Comment not found." })
+        if (comment.userId !== userId) return res.status(403).json({ error: "Not your comment." })
+        if (comment.postId !== post.id) return  res.status(400).json({ error: "Comment doesn't belong to this post." })
+
+        await prisma.comment.update({
+            data: { content: msgText }, 
+            where: { id: commentId }
+        })
+
+        return res.status(200).json({ message: "Comment edited." })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
+
+export async function deleteOwnComment (req, res) {
+    const { postId, commentId } = req.params
+    const userId = req.user.id
+
+    if (!postId ||  !userId || !commentId) {
+        return res.status(400).json({ error: "content or identifiers is missing." })
+    }
+    
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found." })
+
+        const comment = await prisma.comment.findUnique({ where: { id: commentId } })
+        if (!comment) return res.status(404).json({ error: "Comment not found." })
+        if (comment.userId !== userId) return res.status(403).json({ error: "Not your comment." })
+        if (comment.postId !== post.id) return  res.status(400).json({ error: "Comment doesn't belong to this post." })
+
+        await prisma.comment.delete({ where: { id: commentId } })
+
+        return res.status(200).json({ message: "Comment deleted." })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
