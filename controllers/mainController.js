@@ -55,6 +55,25 @@ export async function getAllPosts (req, res) {
     }
 }
 
+export async function getPost (req, res) {
+    const userId = req.user.id
+    const { postId } = req.params
+
+    if (!postId || !userId) {
+        return res.status(400).json({ error: "content or identifiers is missing." })
+    }
+
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found." })
+        
+        return res.status(200).json({ Post: post })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
 export async function postComment (req, res) {
     const postId = req.params.postId
     const userId = req.user.id
