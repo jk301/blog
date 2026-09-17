@@ -1,7 +1,12 @@
 import { Router } from 'express'
 import {
     authorLogin, 
-    postUnpub
+    postUnpub,
+    deletePost, 
+    editPost, 
+    pushPub, 
+    pullPub,
+    deleteComment
 } from '../controllers/authorController.js'
 import passport from 'passport'
 
@@ -11,3 +16,8 @@ authorRouter.post('/login', passport.authenticate('local', { session: false }), 
 
 // Protect jwt
 authorRouter.post('/posts', passport.authenticate('jwt', { session: false }), postUnpub)
+authorRouter.patch('/posts/:postId/publish', passport.authenticate('jwt', { session: false }), pushPub)
+authorRouter.patch('/posts/:postId/unpublish', passport.authenticate('jwt', { session: false }), pullPub)
+authorRouter.delete('/posts/:postId/delete', passport.authenticate('jwt', { session: false }), deletePost)
+authorRouter.put('/posts/:postId/edit', passport.authenticate('jwt', { session: false }), editPost)
+authorRouter.delete('/posts/:postId/comments/:commentId/delete', passport.authenticate('jwt', { session: false }), deleteComment)

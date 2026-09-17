@@ -30,13 +30,14 @@ export async function authorLogin (req, res) {
     }
 }
 
+
 export async function postUnpub (req, res) {
     const userId = req.user.id
     const title = req.body.title
     const content = req.body.content
 
     if (!req.user.isAuthor) {
-        return res.status(403).json({ error: "Only authors can create posts." })
+        return res.status(403).json({ error: "Only authors can create/change posts." })
     }
 
     if (!title || !content || !userId) {
@@ -46,6 +47,144 @@ export async function postUnpub (req, res) {
     try {
         await prisma.post.create({ data: { title, content, userId }})
         res.status(201).json({ message: "A unpublished post added." })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
+
+export async function deletePost (req, res) {
+    const userId = req.user.id
+    const { postId } = req.params
+
+    if (!req.user.isAuthor) {
+        return res.status(403).json({ error: "Only authors can create/change posts." })
+    }
+
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found" })
+        if (post.userId !== userId) return res.status(403).json({ error: "Not your post" })
+
+        await prisma.post.delete({ where: { id: postId }})
+
+        return res.status(200).json({ message: "Post deleted" })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
+export async function editPost (req, res) {
+    const userId = req.user.id
+    const { postId } = req.params
+    const title = req.body.title
+    const content = req.body.content
+
+    if (!title || !content) {
+        return res.status().json({ error: "Fields are empty" })
+    }
+
+    if (!req.user.isAuthor) {
+        return res.status(403).json({ error: "Only authors can create/change posts." })
+    }
+
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found" })
+        if (post.userId !== userId) return res.status(403).json({ error: "Not your post" })
+
+        await prisma.post.update({
+            data: { title, content }, 
+            where: { id: postId }
+        })
+
+        return res.status(200).json({ message: "Post edited." })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
+
+export async function pushPub (req, res) {
+    const userId = req.user.id
+    const { postId } = req.params
+
+    if (!req.user.isAuthor) {
+        return res.status(403).json({ error: "Only authors can create/change posts." })
+    }
+
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found" })
+        if (post.userId !== userId) return res.status(403).json({ error: "Not your post" })
+
+        await prisma.post.update({
+            data: {
+                isPub: true
+            }, where: {
+                id: postId
+            }
+        })
+
+        return res.status(200).json({ message: "Added to publish" })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
+
+export async function pullPub (req, res) {
+    const userId = req.user.id
+    const { postId } = req.params
+
+    if (!req.user.isAuthor) {
+        return res.status(403).json({ error: "Only authors can create/change posts." })
+    }
+
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found" })
+        if (post.userId !== userId) return res.status(403).json({ error: "Not your post" })
+
+        await prisma.post.update({
+            data: {
+                isPub: false
+            }, where: {
+                id: postId
+            }
+        })
+
+        return res.status(200).json({ message: "Removed from publish." })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
+export async function deleteComment (req, res) {
+    const userId = req.user.id
+    const { postId, commentId } = req.params
+
+    if (!req.user.isAuthor) {
+        return res.status(403).json({ error: "Only authors can delete others comment in their post." })
+    }
+
+    try {
+        const post = await prisma.post.findUnique({ where: { id: postId } })
+        if (!post) return res.status(404).json({ error: "Post not found." })
+        if (post.userId !== userId) return res.status(403).json({ error: "Not your post." })
+
+        const comment = await prisma.comment.findUnique({ where: { id: commentId } })
+        if (!comment) return res.status(404).json({ error: "Comment not found." })
+        if (comment.postId !== post.id) return res.status(403).json({ error: "Comment not on your post." })
+
+        await prisma.comment.delete({ where: { id: commentId } })
+
+        return res.status(200).json({ message: "Comment deleted" })
     } catch (error) {
         console.log(error)
         return res.status(500).json({ error: "Something went wrong." })
