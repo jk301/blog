@@ -2,19 +2,6 @@ import { prisma } from '../lib/prisma.js'
 import { passValid, genPass } from '../lib/utils.js'
 import jwt from 'jsonwebtoken'
 
-export function getMainPage (req, res) {
-    res.json({
-        message: "This is main route"
-    })
-}
-
-export function getProfile (req, res) {
-    res.json({
-        message: 'Got the user through JWT', 
-        user: req.user
-    })
-}
-
 export async function register (req, res) {
     const email = req.body.email
     const username = req.body.username
@@ -54,4 +41,15 @@ export function login (req, res) {
     return res.status(200).json({
         token
     })
+}
+
+export async function getAllPosts (req, res) {
+    try {
+        const allPost = await prisma.post.findMany()
+        if (!allPost) return res.status(404).json({ error: "Posts are empty" })
+        
+        return res.status(200).json({ Posts: allPost })
+    } catch (error) {
+        console.log(error)
+    }
 }

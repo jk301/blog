@@ -3,16 +3,16 @@ import {
     getMainPage, 
     getProfile, 
     register, 
-    login
+    login, 
+    getAllPosts
 } from '../controllers/mainController.js'
 import passport from 'passport'
 
 export const mainRouter = Router()
 
-mainRouter.get('/', getMainPage)
+mainRouter.post('/register', register)
+mainRouter.get('/posts', getAllPosts)
 
 // Protect 
 mainRouter.get('/profile', passport.authenticate('jwt', { session: false }), getProfile)
-
-mainRouter.post('/register', register)
 mainRouter.post('/login', passport.authenticate('local', { session: false }), login)
