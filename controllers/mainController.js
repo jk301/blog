@@ -46,10 +46,29 @@ export function login (req, res) {
 export async function getAllPosts (req, res) {
     try {
         const allPost = await prisma.post.findMany()
-        if (!allPost) return res.status(404).json({ error: "Posts are empty" })
+        if (!allPost) return res.status(404).json({ error: "Posts are empty." })
         
         return res.status(200).json({ Posts: allPost })
     } catch (error) {
         console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
+export async function postComment (req, res) {
+    const postId = req.params.postId
+    const userId = req.user.id
+    const msgText = req.body.text
+
+    if (!postId || !msgText || !userId) {
+        return res.status(400).json({ error: "content or identifiers is missing." })
+    }
+    
+    try {
+        await prisma.comment.create({ data: { content: msgText, userId, postId }})
+        res.status(201).json({ message: "Comment posted." })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
     }
 }
