@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
     authorLogin, 
     getPosts, 
+    viewPost, 
     postUnpub,
     deletePost, 
     editPost, 
@@ -17,6 +18,7 @@ authorRouter.post('/login', passport.authenticate('local', { session: false }), 
 
 // Protect jwt
 authorRouter.get('/posts', passport.authenticate('jwt', { session: false }), getPosts)
+authorRouter.get('/posts/:postId', passport.authenticate('jwt', { session: false }), viewPost)
 authorRouter.post('/posts', passport.authenticate('jwt', { session: false }), postUnpub)
 authorRouter.patch('/posts/:postId/publish', passport.authenticate('jwt', { session: false }), pushPub)
 authorRouter.patch('/posts/:postId/unpublish', passport.authenticate('jwt', { session: false }), pullPub)

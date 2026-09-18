@@ -46,6 +46,23 @@ export async function getPosts (req, res) {
     }
 }
 
+export async function viewPost (req, res) {
+    const userId = req.user.id
+    const { postId } = req.params
+
+    if (!req.user.isAuthor) {
+        return res.status(403).json({ error: "Only authors can create/change posts." })
+    }
+    
+    try {
+        const post = await prisma.post.findUnique({ where: { userId, id: postId } })
+        return res.status(200).json({ Post: post })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({ error: "Something went wrong." })
+    }
+}
+
 export async function postUnpub (req, res) {
     const userId = req.user.id
     const title = req.body.title
