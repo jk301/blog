@@ -48,14 +48,14 @@ export async function getPosts (req, res) {
 
 export async function viewPost (req, res) {
     const userId = req.user.id
-    const { postId } = req.params
+    const postId = Number(req.params.postId)
 
     if (!req.user.isAuthor) {
         return res.status(403).json({ error: "Only authors can create/change posts." })
     }
     
     try {
-        const post = await prisma.post.findUnique({ where: { userId, id: postId } })
+        const post = await prisma.post.findUnique({ where: { userId, id: postId }, include: { comments: true } })
         return res.status(200).json({ Post: post })
     } catch (error) {
         console.log(error)
@@ -88,7 +88,7 @@ export async function postUnpub (req, res) {
 
 export async function deletePost (req, res) {
     const userId = req.user.id
-    const { postId } = req.params
+    const postId = Number(req.params.postId)
 
     if (!req.user.isAuthor) {
         return res.status(403).json({ error: "Only authors can create/change posts." })
@@ -110,7 +110,7 @@ export async function deletePost (req, res) {
 
 export async function editPost (req, res) {
     const userId = req.user.id
-    const { postId } = req.params
+    const postId = Number(req.params.postId)
     const title = req.body.title
     const content = req.body.content
 
@@ -142,7 +142,7 @@ export async function editPost (req, res) {
 
 export async function pushPub (req, res) {
     const userId = req.user.id
-    const { postId } = req.params
+    const postId = Number(req.params.postId)
 
     if (!req.user.isAuthor) {
         return res.status(403).json({ error: "Only authors can create/change posts." })
@@ -171,7 +171,7 @@ export async function pushPub (req, res) {
 
 export async function pullPub (req, res) {
     const userId = req.user.id
-    const { postId } = req.params
+    const postId = Number(req.params.postId)
 
     if (!req.user.isAuthor) {
         return res.status(403).json({ error: "Only authors can create/change posts." })
@@ -199,7 +199,8 @@ export async function pullPub (req, res) {
 
 export async function deleteComment (req, res) {
     const userId = req.user.id
-    const { postId, commentId } = req.params
+    const postId = Number(req.params.postId)
+    const commentId = Number(req.params.commentId)
 
     if (!req.user.isAuthor) {
         return res.status(403).json({ error: "Only authors can delete others comment in their post." })

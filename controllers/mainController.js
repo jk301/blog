@@ -57,7 +57,7 @@ export async function getAllPosts (req, res) {
 
 export async function getPost (req, res) {
     const userId = req.user.id
-    const { postId } = req.params
+    const postId = Number(req.params.postId)
 
     if (!postId || !userId) {
         return res.status(400).json({ error: "content or identifiers is missing." })
@@ -75,7 +75,7 @@ export async function getPost (req, res) {
 }
 
 export async function postComment (req, res) {
-    const postId = req.params.postId
+    const postId = Number(req.params.postId)
     const userId = req.user.id
     const msgText = req.body.text
 
@@ -93,7 +93,8 @@ export async function postComment (req, res) {
 }
 
 export async function editComment (req, res) {
-    const { postId, commentId } = req.params
+    const postId = Number(req.params.postId)
+    const commentId = Number(req.params.commentId)
     const userId = req.user.id
     const msgText = req.body.text
 
@@ -124,7 +125,8 @@ export async function editComment (req, res) {
 
 
 export async function deleteOwnComment (req, res) {
-    const { postId, commentId } = req.params
+    const postId = Number(req.params.postId)
+    const commentId = Number(req.params.commentId)
     const userId = req.user.id
 
     if (!postId ||  !userId || !commentId) {
